@@ -1,11 +1,14 @@
 // ES5 on purpose (var, no arrows): old WebKit browsers like Kindle's run it unbundled.
 (function () {
-  // Images are notes/<clef>-<note>.png; keep in sync with vite.config.js.
-  var CLEFS = {
-    treble: ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'],
-    bass: ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4']
-  }
   var NAMES = ['C', 'D', 'E', 'F', 'G', 'A', 'H']
+  var DURATIONS = ['w', 'h', 'q', '8', '16']
+  // Images are notes/<image>.png; keep in sync with vite.config.js.
+  var MODES = {
+    treble: pitches('treble', ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']),
+    bass: pitches('bass', ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4']),
+    notes: lengths('note', ['Cała nuta', 'Półnuta', 'Ćwierćnuta', 'Ósemka', 'Szesnastka']),
+    rests: lengths('rest', ['Pauza całonutowa', 'Pauza półnutowa', 'Pauza ćwierćnutowa', 'Pauza ósemkowa', 'Pauza szesnastkowa'])
+  }
   var PRAISE = ['Super!', 'Nieźle!', 'Dobrze!', 'Ekstra!', 'Wspaniale!']
   // One is picked at random after a finished game.
   var IMAGES = [
@@ -72,42 +75,77 @@
   ]
   var GOAL = 10
 
-  var clef, score, current
+  var mode, score, current
   var $ = function (id) { return document.getElementById(id) }
   function pick(list) { return list[Math.floor(Math.random() * list.length)] }
 
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1))
+      var t = a[i]; a[i] = a[j]; a[j] = t
+    }
+    return a
+  }
+
   // Polish naming: B is called H.
   function nameOf(note) { return note.charAt(0) === 'B' ? 'H' : note.charAt(0) }
+
+  // All 7 names in a row.
+  function pitches(clef, notes) {
+    return {
+      answers: NAMES,
+      items: notes.map(function (n) { return { image: clef + '-' + n, answer: nameOf(n) } })
+    }
+  }
+
+  // Long labels: 4 of them, stacked.
+  function lengths(kind, names) {
+    return {
+      answers: names,
+      choices: 4,
+      layout: 'vertical',
+      items: DURATIONS.map(function (d, i) { return { image: kind + '-' + d, answer: names[i] } })
+    }
+  }
 
   function screen(id) {
     var ids = ['menu', 'game', 'end']
     for (var i = 0; i < ids.length; i++) $(ids[i]).style.display = ids[i] === id ? 'block' : 'none'
   }
 
-  function nextNote() {
+  function nextItem() {
     var prev = current
-    do current = pick(CLEFS[clef]); while (current === prev)
-    $('note').src = 'notes/' + clef + '-' + current + '.png'
+    do current = pick(mode.items); while (current === prev)
+    $('note').src = 'notes/' + current.image + '.png'
 
+    var options = mode.answers
+    if (mode.choices) {
+      var right = current.answer
+      var wrong = shuffle(options.filter(function (a) { return a !== right })).slice(0, mode.choices - 1)
+      // Filtering the full list keeps the natural order (C..H, whole..sixteenth).
+      options = options.filter(function (a) { return a === right || wrong.indexOf(a) >= 0 })
+    }
+    $('answers').className = mode.layout || ''
     $('answers').innerHTML = ''
-    NAMES.forEach(function (name) {
+    options.forEach(function (name) {
       var button = document.createElement('button')
       button.innerHTML = name
       $('answers').appendChild(button)
     })
   }
 
-  function start(chosenClef) {
-    clef = chosenClef
+  function start(name) {
+    mode = MODES[name]
+    current = null
     score = 0
     $('points').innerHTML = 'Punkty: 0'
     $('message').innerHTML = ''
     screen('game')
-    nextNote()
+    nextItem()
   }
 
   $('menu').onclick = function (e) {
-    var chosen = e.target.getAttribute('data-clef')
+    var chosen = e.target.getAttribute('data-mode')
     if (chosen) start(chosen)
   }
 
@@ -115,13 +153,13 @@
   $('answers').onclick = function (e) {
     var button = e.target
     if (button.tagName !== 'BUTTON') return
-    if (button.innerHTML === nameOf(current)) {
+    if (button.innerHTML === current.answer) {
       score += 2
       $('message').innerHTML = pick(PRAISE)
       if (score >= GOAL) {
         $('reward').src = pick(IMAGES)
         screen('end')
-      } else nextNote()
+      } else nextItem()
     } else {
       score -= 1
       $('message').innerHTML = 'Spróbuj ponownie'

@@ -38,7 +38,7 @@ button {
   margin: 0 0.3%;
 }
 
-button.wide {
+#answers.vertical button, button.wide {
   display: block;
   width: 100%;
   max-width: 20em;
