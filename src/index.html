@@ -3,12 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Music Theory</title>
+  <title>Teoria muzyki</title>
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-  <h1>Music Theory</h1>
-  <div id="score"></div>
-  <script type="module" src="./js/main.js"></script>
+  <div id="menu">
+    <h1>Teoria muzyki</h1>
+    <button class="wide" data-clef="treble">Wysokości nut – klucz wiolinowy</button>
+    <button class="wide" data-clef="bass">Wysokości nut – klucz basowy</button>
+  </div>
+  <div id="game">
+    <p id="points">Punkty: 0</p>
+    <img id="note" width="300" height="225" alt="Nuta do odgadnięcia">
+    <div id="panel">
+      <p id="message"></p>
+      <div id="answers"></div>
+    </div>
+  </div>
+  <div id="end">
+    <p>Nieźle Ci poszło!</p>
+    <img id="reward" alt="Nagroda">
+    <button class="wide" id="back">Menu</button>
+  </div>
+  <!-- Plain ES5 script, copied as-is from public/: works in old browsers like Kindle's. -->
+  <script src="./game.js"></script>
 </body>
 </html>

@@ -1,4 +1,62 @@
 body {
   font-family: system-ui, sans-serif;
-  margin: 2rem;
+  margin: 1rem;
+  text-align: center;
+}
+
+#note, #reward {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+#reward {
+  max-height: 60vh;
+}
+
+#panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1rem;
+}
+
+#message {
+  min-height: 1.5em;
+  font-size: 1.3rem;
+}
+
+button {
+  font-size: 1.5rem;
+  padding: 0.6em 0;
+}
+
+#answers button {
+  width: 13%;
+  margin: 0 0.3%;
+}
+
+button.wide {
+  display: block;
+  width: 100%;
+  max-width: 20em;
+  margin: 1rem auto;
+  font-size: 1.2rem;
+}
+
+button[disabled] {
+  color: #aaa;
+  border-color: #ccc;
+  background: #eee;
+}
+
+/* JS switches screens; menu shows first. */
+#game, #end {
+  display: none;
+}
+
+#end {
+  font-size: 1.3rem;
 }
